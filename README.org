@@ -1,0 +1,14 @@
+#+AUTHOR: Cristian Scapin (JustCris)
+#+DESCRIPTION: Pomodoro timer
+#+STARTUP: showeverything
+#+OPTIONS: toc:2
+
+* Build instructions
+** Dependencies
+- Raylib
+- c compiler
+** Build
+#+begin_src bash
+  cc nob.c -o nob
+  ./nob # builds and run the pomodor app
+#+end_src

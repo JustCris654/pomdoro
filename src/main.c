@@ -8,7 +8,7 @@
 #endif
 
 #define RAYGUI_IMPLEMENTATION
-#include "../libs/raygui.h"
+#include "raygui.h"
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop

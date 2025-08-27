@@ -3,6 +3,6 @@
 #+STARTUP: showeverything
 #+OPTIONS: toc:2
 
-* POMODORO TODO [1/2]
+* POMODORO TODO [2/2]
 - [X] Show timer
-- [ ] Show stop button
+- [X] Show stop button

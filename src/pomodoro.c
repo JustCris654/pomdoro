@@ -64,6 +64,7 @@ int main(int argc, char **argv) {
       if (stopPomodoro) {
         pState.plsExit = true;
         stopPomodoro = false;
+        pState.isPomodoroRunning = false;
       }
       pthread_mutex_unlock(&mtx);
 
@@ -94,9 +95,8 @@ void drawTotalElapsedTime(int s) {
   t.m = (s % (60 * 60)) / 60;
   t.s = s % 60;
 
-  drawPomodoroLbl(
-      TextFormat("Total: %02d:%02d:%02d", t.h, t.m, t.s), 48, 2, 1,
-      20);
+  drawPomodoroLbl(TextFormat("Total: %02d:%02d:%02d", t.h, t.m, t.s), 48, 2, 1,
+                  20);
 }
 
 void *startPomodoroTimer(void *arg) {
@@ -113,7 +113,6 @@ void *startPomodoroTimer(void *arg) {
     pthread_mutex_lock(&mtx);
 
     if (pState->plsExit) {
-      pState->isPomodoroRunning = false;
       pState->plsExit = false;
       pthread_mutex_unlock(&mtx);
       return NULL;
@@ -122,9 +121,6 @@ void *startPomodoroTimer(void *arg) {
     pState->t.m = (seconds % (60 * 60)) / 60;
     pState->t.s = seconds % 60;
 
-    /* printf("\r%02d:%02d", pState->t.m, pState->t.s); */
-
-    /* fflush(stdout); */
     pthread_mutex_unlock(&mtx);
 
     clock_t stop = clock() + CLOCKS_PER_SEC;
@@ -143,8 +139,8 @@ void *startPomodoroTimer(void *arg) {
   return NULL;
 }
 
-void drawPomodoroLbl(const char *text, int fontSize, int x_eights,
-                     int y_eights, int padding) {
+void drawPomodoroLbl(const char *text, int fontSize, int x_eights, int y_eights,
+                     int padding) {
   int prevFontSize = GuiGetStyle(DEFAULT, TEXT_SIZE);
   GuiSetStyle(DEFAULT, TEXT_SIZE, fontSize);
   Vector2 textboxSize = textboxSizeForText(text, padding);

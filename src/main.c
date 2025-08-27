@@ -25,6 +25,8 @@ void *startPomodoroTimer(void *arg);
 void drawTimer();
 void drawPomodoroBtn(const char *text, int x_quarters, int y_quarters,
                      int padding, bool *clicked);
+void drawPomodoroLbl(const char *text, int fontSize, int x_quarters,
+                     int y_quarters, int padding);
 
 typedef struct {
   int m;
@@ -46,7 +48,7 @@ int main(int argc, char **argv) {
 
   bool startPomodoro = false;
   bool stopPomodoro = false;
-  PomodoroState pState = {0, 0};
+  PomodoroState pState = {0, 0, 0, {0, 0}};
   pthread_t timerThread;
 
   pthread_mutex_init(&mtx, NULL);
@@ -63,19 +65,12 @@ int main(int argc, char **argv) {
       ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
 
       pthread_mutex_lock(&mtx);
-
       if (!pState.isPomodoroRunning) {
         drawPomodoroBtn("#150#Start pomodoro", 2, 2, 150, &startPomodoro);
       } else {
         // DRAW TIMER
-        GuiSetStyle(DEFAULT, TEXT_SIZE, 96);
-        Vector2 textboxSize =
-            textboxSizeForText("000000", 10); // it is always 5 characters
-        GuiLabel((Rectangle){floor(W_WIDTH / 2.0) - textboxSize.x / 2,
-                             floor(W_HEIGHT / 2.0) - textboxSize.y / 2,
-                             textboxSize.x, textboxSize.y},
-                 TextFormat("#219#%02d:%02d", pState.t.m, pState.t.s));
-        GuiSetStyle(DEFAULT, TEXT_SIZE, 48);
+        drawPomodoroLbl(TextFormat("%02d:%02d", pState.t.m, pState.t.s),
+                        96, 2, 2, 10);
 
         // DRAW STOP BUTTON
         drawPomodoroBtn("#211#Stop", 3, 3, 10, &stopPomodoro);
@@ -148,6 +143,18 @@ void *startPomodoroTimer(void *arg) {
   pthread_mutex_unlock(&mtx);
 
   return NULL;
+}
+
+void drawPomodoroLbl(const char *text, int fontSize, int x_quarters,
+                     int y_quarters, int padding) {
+  int prevFontSize = GuiGetStyle(DEFAULT, TEXT_SIZE);
+  GuiSetStyle(DEFAULT, TEXT_SIZE, fontSize);
+  Vector2 textboxSize = textboxSizeForText(text, padding);
+  GuiLabel((Rectangle){floor((W_WIDTH / 4.0) * x_quarters) - textboxSize.x / 2,
+                       floor((W_HEIGHT / 4.0) * y_quarters) - textboxSize.y / 2,
+                       textboxSize.x, textboxSize.y},
+           text);
+  GuiSetStyle(DEFAULT, TEXT_SIZE, prevFontSize);
 }
 
 void drawPomodoroBtn(const char *text, int x_quarters, int y_quarters,

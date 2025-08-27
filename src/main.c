@@ -1,5 +1,8 @@
+#include <pthread.h>
 #include <raylib.h>
 #include <stdio.h>
+#include <time.h>
+#include <unistd.h>
 
 // suppress raygui warnings
 #ifdef __GNUC__
@@ -14,42 +17,44 @@
 #pragma GCC diagnostic pop
 #endif
 
-int main(int argc, char **argv) {
+#define W_WIDTH 1200
+#define W_HEIGHT 800
 
-  InitWindow(800, 600, "Example");
+Vector2 textboxSizeForText(const char *text, int padding);
+void *startPomodoroTimer(void *arg);
+void drawStartPomodoro(bool *start);
+
+typedef struct {
+  int elapsed;
+} Timer;
+
+int main(int argc, char **argv) {
+  (void)argc;
+  (void)argv;
+
+  bool startPomodoro = false;
+  pthread_t timerThread;
+
+  InitWindow(W_WIDTH, W_HEIGHT, "Example");
   SetTargetFPS(60);
 
-  // Font size customization
-  GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
-
-  bool showMessageBox = false;
+  // set font size for 4k display
+  GuiSetStyle(DEFAULT, TEXT_SIZE, 24);
 
   while (!WindowShouldClose()) {
     BeginDrawing();
     {
       ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
 
-      char *text = "#191#Show Message";
-      Vector2 textSize = MeasureTextEx(
-          GuiGetFont(), text, (float)GuiGetStyle(DEFAULT, TEXT_SIZE),
-          (float)GuiGetStyle(DEFAULT, TEXT_SPACING));
-      // add padding
-      textSize.x += 10;
-      textSize.y += 10;
-      printf("Text sizes: %f %f", textSize.x, textSize.y);
-      if (GuiButton((Rectangle){400 - textSize.x / 2, 300 - textSize.y / 2,
-                                textSize.x, textSize.y},
-                    text)) {
-        showMessageBox = true;
-      }
+      drawStartPomodoro(&startPomodoro);
 
-      if (showMessageBox) {
-        int result =
-            GuiMessageBox((Rectangle){85, 70, 250, 100}, "#191#Message Box",
-                          "Hi! This is a message!", "Nice;Cool");
-        if (result >= 0) {
-          showMessageBox = false;
-        }
+      if (startPomodoro) {
+
+	if (pthread_create(&timerThread, NULL, startPomodoroTimer, NULL) != 0) {
+	  perror("pthread_create");
+	  return 1;
+	}
+        startPomodoro = false;
       }
     }
     EndDrawing();
@@ -58,4 +63,36 @@ int main(int argc, char **argv) {
   CloseWindow();
 
   return 0;
+}
+
+void *startPomodoroTimer(void *arg) {
+  (void)arg;
+  printf("Starting pomodoro\n");
+
+  while (true) {
+    printf("    Pomodoro ticking\n");
+    sleep(1);
+  }
+}
+
+void drawStartPomodoro(bool *start) {
+  const char *text = "#150#Start pomodoro";
+  Vector2 textboxSize = textboxSizeForText(text, 150);
+  if (GuiButton((Rectangle){floor(W_WIDTH / 2.0) - textboxSize.x / 2,
+                            floor(W_HEIGHT / 2.0) - textboxSize.y / 2,
+                            textboxSize.x, textboxSize.y},
+                text)) {
+    *start = true;
+  }
+}
+
+Vector2 textboxSizeForText(const char *text, int padding) {
+  Vector2 textSize =
+      MeasureTextEx(GuiGetFont(), text, (float)GuiGetStyle(DEFAULT, TEXT_SIZE),
+                    (float)GuiGetStyle(DEFAULT, TEXT_SPACING));
+  // add padding
+  textSize.x += padding;
+  textSize.y += padding;
+
+  return textSize;
 }

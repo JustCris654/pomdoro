@@ -3,6 +3,8 @@
 #+STARTUP: showeverything
 #+OPTIONS: toc:2
 
-* POMODORO TODO [2/2]
+* POMODORO TODO [2/4]
 - [X] Show timer
 - [X] Show stop button
+- [ ] Play sound when pomodoro finish
+- [ ] Show total studied time

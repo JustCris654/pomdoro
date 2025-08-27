@@ -88,7 +88,6 @@ int main(int argc, char **argv) {
       pthread_mutex_unlock(&mtx);
 
       if (startPomodoro) {
-        printf("Starting pomodoro\n");
         if (pthread_create(&timerThread, NULL, startPomodoroTimer, &pState) !=
             0) {
           perror("pthread_create");

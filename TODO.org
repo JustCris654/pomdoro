@@ -1,0 +1,8 @@
+#+AUTHOR: Cristian Scapin (JustCris)
+#+DESCRIPTION: Pomodoro timer TODO list
+#+STARTUP: showeverything
+#+OPTIONS: toc:2
+
+* POMODORO TODO [1/2]
+- [X] Show timer
+- [ ] Show stop button

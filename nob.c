@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
   nob_cc(&cmd);
   nob_cc_flags(&cmd);
   nob_cc_output(&cmd, BUILD_FOLDER"main");
-  nob_cc_inputs(&cmd, SRC_FOLDER"main.c");
+  nob_cc_inputs(&cmd, SRC_FOLDER"pomodoro.c");
   nob_cmd_append(&cmd, "-Ilibs");
   nob_cmd_append(&cmd, "-lraylib", "-lGL", "-lm", "-lpthread", "-ldl", "-lrt", "-lX11");
 

@@ -3,8 +3,9 @@
 #+STARTUP: showeverything
 #+OPTIONS: toc:2
 
-* POMODORO TODO [2/4]
+* POMODORO TODO [3/5]
 - [X] Show timer
 - [X] Show stop button
 - [ ] Play sound when pomodoro finish
-- [ ] Show total studied time
+- [X] Show total studied time
+- [ ] Include raylib library in libs to facilitate builds

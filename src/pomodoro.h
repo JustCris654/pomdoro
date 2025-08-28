@@ -5,7 +5,6 @@
 #include <raylib.h>
 #include <stdio.h>
 
-#define MINUTES 1
 
 const char *GOSPEL_PATH = "./assets/gospel.mp3";
 const char *LETS_GET_IT_ON_PATH = "./assets/lets-get-it-on.mp3";

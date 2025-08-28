@@ -5,6 +5,14 @@
 
 * Pomodoro
 Dead simple pomodoro app
+#+CAPTION: Pomodoro app 
+#+NAME:   fig:SED-HR4049
+#+ATTR_HTML: :width 300px
+[[./imgs/start_pomodoro.png]]
+#+CAPTION: Pomodoro app while a pomodoro is running
+#+NAME:   fig:SED-HR4049
+#+ATTR_HTML: :width 300px
+[[./imgs/running_pomodoro.png]]
 
 * Build instructions
 ** Dependencies

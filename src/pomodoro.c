@@ -25,6 +25,7 @@
 
 #define W_WIDTH 1200
 #define W_HEIGHT 800
+#define MINUTES 25
 
 pthread_mutex_t mtx;
 int LAVANDA = 0;

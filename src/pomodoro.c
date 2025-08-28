@@ -17,6 +17,7 @@
 
 #define RAYGUI_IMPLEMENTATION
 #include <raygui.h>
+#include <style_lavanda.h>
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
@@ -26,6 +27,7 @@
 #define W_HEIGHT 800
 
 pthread_mutex_t mtx;
+int LAVANDA = 0;
 
 int main(int argc, char **argv) {
   (void)argc;
@@ -33,7 +35,7 @@ int main(int argc, char **argv) {
 
   bool startPomodoro = false;
   bool stopPomodoro = false;
-  PomodoroState pState = {0, 0, 0,0,0, {0, 0, 0}};
+  PomodoroState pState = {0, 0, 0, 0, 0, {0, 0, 0}};
   pthread_t timerThread;
   ma_engine soundEngine;
 
@@ -44,12 +46,13 @@ int main(int argc, char **argv) {
   SetTargetFPS(60);
 
   // set font size for 4k display
-  GuiSetStyle(DEFAULT, TEXT_SIZE, 48);
+  GuiLoadStyleLavanda();
+  GuiSetStyle(LAVANDA, TEXT_SIZE, 48);
 
   while (!WindowShouldClose()) {
     BeginDrawing();
     {
-      ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+      ClearBackground(GetColor(GuiGetStyle(LAVANDA, BACKGROUND_COLOR)));
 
       pthread_mutex_lock(&mtx);
 
@@ -158,14 +161,14 @@ void *startPomodoroTimer(void *arg) {
 
 void drawPomodoroLbl(const char *text, int fontSize, int x_eights, int y_eights,
                      int padding) {
-  int prevFontSize = GuiGetStyle(DEFAULT, TEXT_SIZE);
-  GuiSetStyle(DEFAULT, TEXT_SIZE, fontSize);
+  int prevFontSize = GuiGetStyle(LAVANDA, TEXT_SIZE);
+  GuiSetStyle(LAVANDA, TEXT_SIZE, fontSize);
   Vector2 textboxSize = textboxSizeForText(text, padding);
   GuiLabel((Rectangle){floor((W_WIDTH / 8.0) * x_eights) - textboxSize.x / 2,
                        floor((W_HEIGHT / 8.0) * y_eights) - textboxSize.y / 2,
                        textboxSize.x, textboxSize.y},
            text);
-  GuiSetStyle(DEFAULT, TEXT_SIZE, prevFontSize);
+  GuiSetStyle(LAVANDA, TEXT_SIZE, prevFontSize);
 }
 
 void drawPomodoroBtn(const char *text, int x_quarters, int y_quarters,
@@ -182,8 +185,8 @@ void drawPomodoroBtn(const char *text, int x_quarters, int y_quarters,
 
 Vector2 textboxSizeForText(const char *text, int padding) {
   Vector2 textSize =
-      MeasureTextEx(GuiGetFont(), text, (float)GuiGetStyle(DEFAULT, TEXT_SIZE),
-                    (float)GuiGetStyle(DEFAULT, TEXT_SPACING));
+      MeasureTextEx(GuiGetFont(), text, (float)GuiGetStyle(LAVANDA, TEXT_SIZE),
+                    (float)GuiGetStyle(LAVANDA, TEXT_SPACING));
   // add padding
   textSize.x += padding;
   textSize.y += padding;

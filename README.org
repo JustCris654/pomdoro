@@ -8,7 +8,7 @@ Dead simple pomodoro app
 
 * Build instructions
 ** Dependencies
-- Raylib
+- pc
 - c compiler
 ** Build
 #+begin_src bash

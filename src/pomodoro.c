@@ -6,6 +6,9 @@
 #include <time.h>
 #include <unistd.h>
 
+#define MINIAUDIO_IMPLEMENTATION
+#include <miniaudio.h>
+
 // suppress raygui warnings
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -13,7 +16,7 @@
 #endif
 
 #define RAYGUI_IMPLEMENTATION
-#include "raygui.h"
+#include <raygui.h>
 
 #ifdef __GNUC__
 #pragma GCC diagnostic pop
@@ -30,10 +33,12 @@ int main(int argc, char **argv) {
 
   bool startPomodoro = false;
   bool stopPomodoro = false;
-  PomodoroState pState = {0, 0, 0, {0, 0, 0}};
+  PomodoroState pState = {0, 0, 0,0,0, {0, 0, 0}};
   pthread_t timerThread;
+  ma_engine soundEngine;
 
   pthread_mutex_init(&mtx, NULL);
+  initSoundPlay(&soundEngine);
 
   InitWindow(W_WIDTH, W_HEIGHT, "Example");
   SetTargetFPS(60);
@@ -47,6 +52,11 @@ int main(int argc, char **argv) {
       ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
 
       pthread_mutex_lock(&mtx);
+
+      if (pState.playEndSound) {
+        playSound(GOSPEL, &soundEngine);
+        pState.playEndSound = false;
+      }
 
       int totalElapTime = pState.elapsedFromStart;
 
@@ -89,6 +99,11 @@ int main(int argc, char **argv) {
   return 0;
 }
 
+void playSound(PlayableSound sound, ma_engine *soundEngine) {
+  const char *soundPath = getSoundPath(sound);
+  ma_engine_play_sound(soundEngine, soundPath, NULL);
+}
+
 void drawTotalElapsedTime(int s) {
   Time t = {0, 0, 0};
   t.h = s / (60 * 60);
@@ -107,13 +122,14 @@ void *startPomodoroTimer(void *arg) {
   pState->isPomodoroRunning = true;
   pthread_mutex_unlock(&mtx);
 
-  int seconds = 25 * 60;
+  int seconds = MINUTES * 60;
 
   while (seconds > 0) {
     pthread_mutex_lock(&mtx);
 
     if (pState->plsExit) {
       pState->plsExit = false;
+      pState->playEndSound = true;
       pthread_mutex_unlock(&mtx);
       return NULL;
     }
@@ -134,6 +150,7 @@ void *startPomodoroTimer(void *arg) {
   pthread_mutex_lock(&mtx);
   pState->isPomodoroRunning = false;
   pState->plsExit = false;
+  pState->playEndSound = true;
   pthread_mutex_unlock(&mtx);
 
   return NULL;

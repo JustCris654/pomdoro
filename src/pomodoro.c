@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
+#include <errno.h>
 
 #define MINIAUDIO_IMPLEMENTATION
 #include <miniaudio.h>
@@ -91,6 +92,7 @@ int main(int argc, char **argv) {
           perror("pthread_create");
           exit(1);
         }
+        pthread_detach(timerThread);
         startPomodoro = false;
       }
     }
@@ -128,6 +130,11 @@ void *startPomodoroTimer(void *arg) {
 
   int seconds = MINUTES * 60;
 
+  // establish the next absolute wake time using CLOCK_MONOTONIC
+  int res;
+  struct timespec next_wake = {0};
+  clock_gettime(CLOCK_MONOTONIC, &next_wake);
+
   while (seconds > 0) {
     pthread_mutex_lock(&mtx);
 
@@ -143,12 +150,17 @@ void *startPomodoroTimer(void *arg) {
 
     pthread_mutex_unlock(&mtx);
 
-    clock_t stop = clock() + CLOCKS_PER_SEC;
-    while (clock() < stop) {
-    }
+    // add 1s to absolute next_wake, handling nsec overflow
+    next_wake.tv_sec += 1;
+    do {
+      res = clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &next_wake, NULL);
+      printf("fuck \n");
+    } while (res == EINTR);
 
     seconds -= 1;
+    pthread_mutex_lock(&mtx);
     pState->elapsedFromStart += 1;
+    pthread_mutex_unlock(&mtx);
   }
 
   pthread_mutex_lock(&mtx);
@@ -165,8 +177,8 @@ void drawPomodoroLbl(const char *text, int fontSize, int x_eights, int y_eights,
   int prevFontSize = GuiGetStyle(LAVANDA, TEXT_SIZE);
   GuiSetStyle(LAVANDA, TEXT_SIZE, fontSize);
   Vector2 textboxSize = textboxSizeForText(text, padding);
-  GuiLabel((Rectangle){floor((W_WIDTH / 8.0) * x_eights) - textboxSize.x / 2,
-                       floor((W_HEIGHT / 8.0) * y_eights) - textboxSize.y / 2,
+  GuiLabel((Rectangle){floor((GetScreenWidth() / 8.0) * x_eights) - textboxSize.x / 2,
+                       floor((GetScreenHeight() / 8.0) * y_eights) - textboxSize.y / 2,
                        textboxSize.x, textboxSize.y},
            text);
   GuiSetStyle(LAVANDA, TEXT_SIZE, prevFontSize);
@@ -176,8 +188,8 @@ void drawPomodoroBtn(const char *text, int x_quarters, int y_quarters,
                      int padding, bool *clicked) {
   Vector2 textboxSize = textboxSizeForText(text, padding);
   if (GuiButton(
-          (Rectangle){floor((W_WIDTH / 4.0) * x_quarters) - textboxSize.x / 2,
-                      floor((W_HEIGHT / 4.0) * y_quarters) - textboxSize.y / 2,
+          (Rectangle){floor((GetScreenWidth() / 4.0) * x_quarters) - textboxSize.x / 2,
+                      floor((GetScreenHeight() / 4.0) * y_quarters) - textboxSize.y / 2,
                       textboxSize.x, textboxSize.y},
           text)) {
     *clicked = true;
